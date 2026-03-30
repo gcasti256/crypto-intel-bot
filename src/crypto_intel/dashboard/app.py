@@ -7,7 +7,7 @@ for market data, bot statistics, and recent analyses.
 from __future__ import annotations
 
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -56,7 +56,7 @@ def _mock_market() -> dict:
         "fear_greed_label": "Greed",
         "btc_dominance": 54.3,
         "total_market_cap": 2_870_000_000_000,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -93,7 +93,7 @@ _RISK_WEIGHTS = [0.4, 0.4, 0.2]
 
 
 def _mock_analyses() -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     analyses = []
     for i in range(20):
         token = random.choice(_MOCK_TOKENS)  # noqa: S311
@@ -161,5 +161,5 @@ async def health():
     return {
         "status": "healthy",
         "service": "crypto-intel-bot",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

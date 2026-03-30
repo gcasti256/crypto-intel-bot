@@ -1,0 +1,56 @@
+services:
+  bot:
+    build: .
+    container_name: crypto-intel-bot
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - crypto-intel-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: crypto-intel-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-crypto_intel}
+      POSTGRES_USER: ${POSTGRES_USER:-crypto_intel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-crypto_intel}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crypto-intel-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: crypto-intel-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crypto-intel-net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  crypto-intel-net:
+    driver: bridge
